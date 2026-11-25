@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Interativo SAVC — 50 Questões</title>
+  <style>
+    :root {
+      --primary: #0f4c81;
+      --primary-light: #1e6cb0;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --success-bg: #dcfce7;
+      --success-border: #16a34a;
+      --success-text: #14532d;
+      --error-bg: #fee2e2;
+      --error-border: #dc2626;
+      --error-text: #7f1d1d;
+      --info-bg: #e0f2fe;
+      --info-border: #0284c7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      padding: 20px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .header-container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .header-top h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .scoreboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .score-pill {
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .controls input,
+    .controls select,
+    .controls button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    .controls input {
+      flex: 1 1 220px;
+      background: #fff;
+      color: var(--text-main);
+    }
+
+    .controls select {
+      flex: 1 1 200px;
+      background: #fff;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .btn-reset {
+      background: #ef4444;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-reset:hover {
+      background: #dc2626;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 24px auto 0;
+      padding: 0 16px;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .question-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border);
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .q-number {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+
+    .q-topic {
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .q-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #0f172a;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #f8fafc;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary-light);
+      background: #eff6ff;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .opt-letter {
+      font-weight: 700;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #1e293b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .option-btn.correct {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+      font-weight: 600;
+    }
+
+    .option-btn.correct .opt-letter {
+      background: var(--success-border);
+      color: #fff;
+    }
+
+    .option-btn.wrong {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    .option-btn.wrong .opt-letter {
+      background: var(--error-border);
+      color: #fff;
+    }
+
+    .feedback-box {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      display: none;
+    }
+
+    .feedback-box.show {
+      display: block;
+    }
+
+    .feedback-box.is-correct {
+      background: var(--success-bg);
+      border-left: 5px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .feedback-box.is-wrong {
+      background: var(--error-bg);
+      border-left: 5px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    .feedback-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 0.98rem;
+    }
+
+    .feedback-explanation {
+      color: #1e293b;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: #fff;
+      border-radius: 10px;
+      color: var(--text-muted);
+      border: 1px dashed var(--border);
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .header-top h1 {
+        font-size: 1.15rem;
+      }
+      .question-card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="header-top">
+      <h1>Quiz SAVC — Suporte Avançado de Vida Cardiovascular</h1>
+      <div class="scoreboard">
+        <span class="score-pill">Respondidas: <span id="stat-answered">0</span>/50</span>
+        <span class="score-pill" style="background: rgba(22, 163, 74, 0.35);">Acertos: <span id="stat-correct">0</span></span>
+        <span class="score-pill" style="background: rgba(220, 38, 38, 0.35);">Erros: <span id="stat-wrong">0</span></span>
+        <span class="score-pill">Aproveitamento: <span id="stat-percent">0%</span></span>
+      </div>
+    </div>
+    <div class="controls">
+      <input type="text" id="search-input" placeholder="Buscar por palavra-chave (ex: atropina, 300 mg, BAV, 100 J)...">
+      <select id="topic-filter">
+        <option value="all">Todos os Temas (50 questões)</option>
+      </select>
+      <select id="status-filter">
+        <option value="all">Todas as Questões</option>
+        <option value="unanswered">Não Respondidas</option>
+        <option value="correct">Acertos</option>
+        <option value="wrong">Erros</option>
+      </select>
+      <button type="button" class="btn-reset" id="reset-btn">Reiniciar Quiz</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="stats-bar">
+    <span id="visible-count">Exibindo 50 de 50 questões</span>
+    <span>Nota: O material-base não contém imagens anexas (quiz 100% textual).</span>
+  </div>
+  <div id="quiz-container"></div>
+  <div id="empty-state" class="empty-state">
+    Nenhuma questão encontrada com os filtros selecionados.
+  </div>
+</main>
+
+<script>
+  const questionsData = [
+    {
+      id: 1,
+      topic: "Fundamentos e Cadeia de Sobrevivência",
+      question: "De acordo com as diretrizes de SAVC da AHA, em quais pilares fundamentais se baseia o objetivo central de aumentar significativamente a probabilidade de sobrevivência do paciente crítico na PCR?",
+      options: {
+        A: "Intubação orotraqueal imediata, administração precoce de antiarrítmicos e acesso venoso central.",
+        B: "Reconhecimento precoce da PCR, execução imediata de RCP de alta qualidade e desfibrilação precoce para ritmos chocáveis.",
+        C: "Monitorização invasiva da pressão arterial, controle rigoroso da glicemia e hipotermia terapêutica imediata.",
+        D: "Administração de epinefrina nos primeiros 10 segundos, ventilação com pressão positiva e cardioversão sincronizada."
+      },
+      answer: "B",
+      explanation: "O objetivo central das diretrizes de SAVC da AHA para o manejo da PCR fundamenta-se no reconhecimento precoce da PCR, na execução imediata de RCP de alta qualidade e na desfibrilação precoce para ritmos chocáveis."
+    },
+    {
+      id: 2,
+      topic: "Fundamentos e Cadeia de Sobrevivência",
+      question: "Qual é a sequência exata dos seis elos da Cadeia de Sobrevivência para Parada Cardiorrespiratória (PCR) Intra-Hospitalar em adultos?",
+      options: {
+        A: "1. Acionamento do SME; 2. Reconhecimento precoce; 3. Desfibrilação; 4. RCP de alta qualidade; 5. Recuperação; 6. Cuidados pós-PCR.",
+        B: "1. Reconhecimento e prevenção precoces; 2. Acionamento do Serviço Médico de Emergência; 3. RCP de alta qualidade; 4. Desfibrilação; 5. Cuidados pós-PCR; 6. Recuperação.",
+        C: "1. Prevenção; 2. RCP imediata; 3. Intubação precoce; 4. Desfibrilação; 5. Cuidados intensivos; 6. Reabilitação.",
+        D: "1. Avaliação primária; 2. Acionamento da equipe; 3. Desfibrilação; 4. Medicações IV/IO; 5. Cuidados pós-PCR; 6. Alta hospitalar."
+      },
+      answer: "B",
+      explanation: "Os seis elos sequenciais da Cadeia de Sobrevivência para PCR Intra-Hospitalar em adultos são: 1. Reconhecimento e prevenção precoces; 2. Acionamento do Serviço Médico de Emergência; 3. RCP de alta qualidade; 4. Desfibrilação; 5. Cuidados pós-PCR; 6. Recuperação."
+    },
+    {
+      id: 3,
+      topic: "Reconhecimento e Avaliação Inicial",
+      question: "Durante os primeiros 10 segundos do reconhecimento e avaliação inicial de uma possível PCR, qual sequência de ações deve ser realizada?",
+      options: {
+        A: "Checar pulso por 15 segundos, aplicar duas ventilações de resgate e aguardar o desfibrilador.",
+        B: "Avaliar responsividade, checar pulso e respiração simultaneamente, chamar ajuda, iniciar RCP imediatamente e solicitar desfibrilador.",
+        C: "Obter acesso venoso periférico, instalar monitor multiparamétrico e verificar reflexo pupilar.",
+        D: "Realizar manobra de Valsalva, checar pressão arterial não invasiva e administrar oxigênio a 100%."
+      },
+      answer: "B",
+      explanation: "Nos primeiros 10 segundos deve-se avaliar a responsividade, checar pulso e respiração simultaneamente, chamar ajuda, iniciar RCP imediatamente e solicitar o desfibrilador."
+    },
+    {
+      id: 4,
+      topic: "Reconhecimento e Avaliação Inicial",
+      question: "Ao abordar um paciente inconsciente, você observa movimentos respiratórios lentos, irregulares, semelhantes a roncos ou gemidos (gasping). Qual é a interpretação e a conduta imediata?",
+      options: {
+        A: "Trata-se de respiração agônica eficaz; deve-se apenas ofertar oxigênio suplementar e observar.",
+        B: "É um sinal inequívoco de PCR; deve-se iniciar compressões torácicas sem demora.",
+        C: "Indica obstrução parcial de via aérea; deve-se realizar apenas a manobra de Chin Lift e aguardar 1 minuto.",
+        D: "É um padrão respiratório pós-ictal; deve-se colocar o paciente em posição lateral de segurança."
+      },
+      answer: "B",
+      explanation: "O gasping (suspiros agonais) não é uma respiração eficaz, sendo um sinal inequívoco de PCR. A conduta imediata é iniciar compressões torácicas sem demora."
+    },
+    {
+      id: 5,
+      topic: "Reconhecimento e Avaliação Inicial",
+      question: "Diante de dúvida ou incerteza sobre a presença de pulso central durante a avaliação inicial da PCR, o protocolo estabelece que o socorrista deve:",
+      options: {
+        A: "Repetir a palpação do pulso carotídeo por mais 20 segundos antes de decidir.",
+        B: "Aguardar a chegada do monitor cardíaco para confirmar atividade elétrica.",
+        C: "Iniciar a RCP imediatamente, pois compressões desnecessárias acarretam riscos significativamente menores do que a ausência de compressões em paciente sem pulso.",
+        D: "Realizar apenas ventilações com bolsa-válvula-máscara até a chegada do médico."
+      },
+      answer: "C",
+      explanation: "Em caso de dúvida ou incerteza sobre o pulso, deve-se iniciar a RCP imediatamente. Compressões desnecessárias trazem riscos muito menores do que não comprimir um paciente em PCR, e o atraso reduz drasticamente a sobrevida."
+    },
+    {
+      id: 6,
+      topic: "Reconhecimento e Avaliação Inicial",
+      question: "No ambiente extra-hospitalar, qual é a conduta específica recomendada caso a causa provável da PCR seja hipóxia?",
+      options: {
+        A: "Acionar o serviço médico de emergência primeiro e aguardar no local sem iniciar compressões.",
+        B: "Realizar 2 minutos de RCP antes de acionar o serviço médico de emergência.",
+        C: "Administrar 5 ventilações de resgate e transportar o paciente imediatamente em veículo próprio.",
+        D: "Aplicar choque empírico com DEA antes de iniciar qualquer compressão ou ventilação."
+      },
+      answer: "B",
+      explanation: "No ambiente extra-hospitalar, se a causa da PCR for hipóxia, deve-se realizar 2 minutos de RCP antes de acionar o serviço médico de emergência (nas demais causas, pede-se ajuda imediatamente antes de iniciar a RCP)."
+    },
+    {
+      id: 7,
+      topic: "Abordagem Sistemática",
+      question: "No fluxo da Abordagem Sistemática Expandida, ao avaliar um paciente inconsciente e constatar que ele TEM pulso presente, mas não respira adequadamente, qual é a conduta imediata?",
+      options: {
+        A: "Iniciar compressões torácicas na relação 30:2 e aplicar choque imediato.",
+        B: "Administrar 1 ventilação a cada 6 segundos e seguir para a avaliação primária.",
+        C: "Administrar 1 ventilação a cada 2 segundos e iniciar adrenalina 1 mg EV.",
+        D: "Manter o paciente em observação sem ventilações até realizar a avaliação secundária."
+      },
+      answer: "B",
+      explanation: "Na avaliação de SBV para inconscientes, se o pulso estiver presente, deve-se administrar 1 ventilação a cada 6 segundos e seguir para a avaliação primária (ABCDE)."
+    },
+    {
+      id: 8,
+      topic: "Abordagem Sistemática",
+      question: "Quais são os componentes que integram a Avaliação Primária (ciclo contínuo) e a Avaliação Secundária na PCR?",
+      options: {
+        A: "Primária: Sinais vitais e ECG; Secundária: Desfibrilação e drogas vasoativas.",
+        B: "Primária: Vias Aéreas (A), Respiração (B), Circulação (C), Disfunção (D) e Exposição (E); Secundária: Investigação de histórico específico e identificação de causas reversíveis (Hs e Ts).",
+        C: "Primária: Causas reversíveis (Hs e Ts); Secundária: ABCDE e monitoramento de capnografia.",
+        D: "Primária: Checagem de pulso e choque; Secundária: Cuidados pós-RCE e hipotermia."
+      },
+      answer: "B",
+      explanation: "A Avaliação Primária consiste no ciclo contínuo ABCDE (Vias Aéreas, Respiração, Circulação, Disfunção, Exposição), enquanto a Avaliação Secundária envolve a investigação de histórico específico e causas reversíveis (Hs e Ts)."
+    },
+    {
+      id: 9,
+      topic: "Dinâmica de Equipe",
+      question: "A equipe ideal de ressuscitação é composta por 6 pessoas divididas em dois grupos principais. Quais funções compõem o chamado 'Triângulo de Ressuscitação'?",
+      options: {
+        A: "Líder da Equipe, Medicações IV/IO e Cronometrista/Anotador.",
+        B: "Compressor, DEA/DAE/Monitor/Desfibrilador e Via Aérea.",
+        C: "Líder da Equipe, Compressor e Medicações IV/IO.",
+        D: "Via Aérea, Cronometrista/Anotador e Desfibrilador."
+      },
+      answer: "B",
+      explanation: "O Triângulo de Ressuscitação é formado pelas três funções diretamente ligadas à execução mecânica e elétrica no paciente: Compressor, DEA/DAE/Monitor/Desfibrilador e Via Aérea. Os outros três membros formam Liderança e Suporte."
+    },
+    {
+      id: 10,
+      topic: "Dinâmica de Equipe",
+      question: "Sobre as atribuições do Líder da Equipe e do Cronometrista/Anotador na equipe de ressuscitação, assinale a alternativa correta:",
+      options: {
+        A: "O Líder da Equipe é opcional se o Compressor for experiente; o Cronometrista administra drogas IV.",
+        B: "O Líder da Equipe é função obrigatória, atribui papéis, toma decisões terapêuticas, dá feedback e assume funções não atribuídas; o Cronometrista registra horários, comunica prazos e anota interrupções nas compressões.",
+        C: "O Líder deve operar o desfibrilador e ventilar; o Cronometrista posiciona o monitor visível à equipe.",
+        D: "O Cronometrista decide o momento do choque; o Líder estabelece o acesso intraósseo."
+      },
+      answer: "B",
+      explanation: "O Líder da Equipe é obrigatório em toda equipe, atribuindo papéis, tomando decisões, dando feedback e cobrindo funções vagas. O Cronometrista/Anotador registra horários de intervenções/medicações, avisa prazos e anota frequência e duração das interrupções nas compressões."
+    },
+    {
+      id: 11,
+      topic: "Dinâmica de Equipe",
+      question: "O que estabelece o princípio denominado 'Código da Equipe' durante o atendimento à PCR?",
+      options: {
+        A: "Nenhum membro deixa o Triângulo de Ressuscitação, a não ser para garantir a segurança própria ou da equipe.",
+        B: "Todos os membros podem trocar de função livremente a qualquer segundo sem avisar o líder.",
+        C: "Apenas o líder pode falar em voz alta dentro da sala de emergência.",
+        D: "O compressor deve permanecer na função por no mínimo 10 minutos ininterruptos."
+      },
+      answer: "A",
+      explanation: "Pelo Código da Equipe, nenhum membro deixa o Triângulo de Ressuscitação, exceto quando necessário para garantir a segurança própria ou da equipe."
+    },
+    {
+      id: 12,
+      topic: "Dinâmica de Equipe",
+      question: "Quais são as três etapas rigorosas da Comunicação em Circuito Fechado durante uma ressuscitação?",
+      options: {
+        A: "1. Ordem geral para a sala; 2. Execução silenciosa; 3. Registro escrito no prontuário.",
+        B: "1. O Líder transmite ordem direta a um membro; 2. O Membro responde claramente com contato visual confirmando que ouviu e compreendeu; 3. O Líder aguarda confirmação verbal da execução antes de atribuir nova tarefa ao mesmo membro.",
+        C: "1. O Membro sugere uma droga; 2. O Líder anota; 3. O Cronometrista autoriza a infusão.",
+        D: "1. O Líder grita a prescrição; 2. Qualquer membro disponível executa; 3. O médico confirma no monitor."
+      },
+      answer: "B",
+      explanation: "A Comunicação em Circuito Fechado exige: (1) ordem direta do Líder a um membro específico; (2) resposta clara do membro com contato visual confirmando entendimento; e (3) espera da confirmação verbal de execução pelo Líder antes de dar nova tarefa a esse membro."
+    },
+    {
+      id: 13,
+      topic: "RCP de Alta Qualidade e Monitorização",
+      question: "No atendimento da PCR, qual é a hierarquia correta entre prioridades primárias e secundárias, e quais são os dois erros mais comuns cometidos pelas equipes?",
+      options: {
+        A: "Primárias: via aérea avançada e fármacos; Secundárias: compressões e choque. Erros: atraso na intubação e excesso de adrenalina.",
+        B: "Primárias: RCP de alta qualidade (compressões contínuas) e desfibrilação precoce; Secundárias: dispositivos de via aérea avançada e fármacos. Erros mais comuns: compressões ruins e interrupções excessivas.",
+        C: "Primárias: acesso venoso central e capnografia; Secundárias: desfibrilação. Erros: hiperventilação e choque precoce.",
+        D: "Primárias: diagnóstico dos 5 Hs e 5 Ts; Secundárias: RCP. Erros: falta de bicarbonato e excesso de volume."
+      },
+      answer: "B",
+      explanation: "As prioridades primárias são RCP de alta qualidade e desfibrilação precoce em ritmos chocáveis; as secundárias são via aérea avançada e fármacos. Os dois erros mais comuns são compressões ruins e interrupções excessivas."
+    },
+    {
+      id: 14,
+      topic: "RCP de Alta Qualidade e Monitorização",
+      question: "Qual é o impacto hemodinâmico direto das interrupções nas compressões torácicas durante a PCR?",
+      options: {
+        A: "Aumentam temporariamente o retorno venoso e melhoram a oxigenação cerebral.",
+        B: "Causam queda imediata na Pressão de Perfusão Coronária (PPC), sendo necessárias muitas compressões seguidas após a pausa para restabelecer o nível adequado de PPC.",
+        C: "Não alteram a Pressão de Perfusão Coronária se a pausa for inferior a 25 segundos.",
+        D: "Estabilizam o ritmo cardíaco e aumentam a amplitude da onda de capnografia."
+      },
+      answer: "B",
+      explanation: "Interrupções nas compressões provocam queda imediata da Pressão de Perfusão Coronária (PPC), exigindo muitas compressões contínuas subsequentes para recuperar níveis adequados de perfusão."
+    },
+    {
+      id: 15,
+      topic: "RCP de Alta Qualidade e Monitorização",
+      question: "Assinale a alternativa que apresenta TODOS os parâmetros corretos para compressões torácicas de alta qualidade no adulto:",
+      options: {
+        A: "Profundidade de 3 a 4 cm; frequência de 80 a 100/min; revezamento a cada 5 minutos em até 15 segundos.",
+        B: "Profundidade de pelo menos 5 cm (5 a 6 cm); frequência de 100 a 120/min; retorno total do tórax; revezamento a cada 2 minutos (ou antes se fadiga) em no máximo 5 segundos.",
+        C: "Profundidade de 6 a 8 cm; frequência de 120 a 140/min; apoio leve sobre o tórax entre compressões; revezamento a cada 4 minutos.",
+        D: "Profundidade de pelo menos 4 cm; frequência de 100/min exatos; revezamento a cada 1 minuto em até 10 segundos."
+      },
+      answer: "B",
+      explanation: "Na RCP de alta qualidade: profundidade de 5 a 6 cm (pelo menos 5 cm), frequência de 100 a 120 compressões/min, retorno total do tórax (sem debruçamento), minimização de pausas e revezamento a cada 2 minutos (ou antes se fadiga) em no máximo 5 segundos."
+    },
+    {
+      id: 16,
+      topic: "RCP de Alta Qualidade e Monitorização",
+      question: "Durante uma RCP com via aérea avançada e capnografia quantitativa com forma de onda, observa-se que o valor de PETCO2 está baixo ou em queda progressiva. Qual conduta deve ser tomada imediatamente?",
+      options: {
+        A: "Suspender as compressões por 15 segundos para recalibrar o capnógrafo.",
+        B: "Reavaliar imediatamente a qualidade das compressões torácicas.",
+        C: "Aumentar a frequência ventilatória para 30 ventilações por minuto.",
+        D: "Administrar bicarbonato de sódio em bólus rápido."
+      },
+      answer: "B",
+      explanation: "A capnografia quantitativa monitora a qualidade da RCP e confirma a posição do tubo endotraqueal. Se o PETCO2 estiver baixo ou em queda, deve-se reavaliar imediatamente a qualidade das compressões."
+    },
+    {
+      id: 17,
+      topic: "Ritmos de PCR e Algoritmos",
+      question: "Quais ritmos cardíacos na PCR são classificados como chocáveis e quais são classificados como não chocáveis?",
+      options: {
+        A: "Chocáveis: Assistolia e Fibrilação Ventricular; Não chocáveis: TVSP e AESP.",
+        B: "Chocáveis: Fibrilação Ventricular (FV) e Taquicardia Ventricular sem Pulso (TVSP); Não chocáveis: Assistolia e Atividade Elétrica Sem Pulso (AESP).",
+        C: "Chocáveis: FV, TVSP e AESP; Não chocáveis: apenas Assistolia.",
+        D: "Chocáveis: Taquicardia Sinusal e TVSP; Não chocáveis: FV e Assistolia."
+      },
+      answer: "B",
+      explanation: "Os ritmos chocáveis são Fibrilação Ventricular (FV) e Taquicardia Ventricular sem Pulso (TVSP / TV polimórfica). Os ritmos não chocáveis são Assistolia e Atividade Elétrica Sem Pulso (AESP)."
+    },
+    {
+      id: 18,
+      topic: "Ritmos de PCR e Algoritmos",
+      question: "No algoritmo de PCR em ritmo chocável (FV/TVSP), após identificar o ritmo e aplicar o 1º choque seguido de 2 minutos de RCP, o ritmo permanece chocável. Qual é a sequência correta após o 2º choque?",
+      options: {
+        A: "Administrar Amiodarona 300 mg imediatamente, depois 2 min de RCP.",
+        B: "Reiniciar 2 minutos de RCP, administrar Epinefrina (a cada 3 a 5 min) e considerar via aérea avançada e capnografia.",
+        C: "Administrar Sulfato de Magnésio 2 g e aguardar 3 minutos para checar pulso.",
+        D: "Aplicar o 3º choque imediatamente sem compressões intermediárias."
+      },
+      answer: "B",
+      explanation: "Nos ritmos chocáveis: 1º choque → 2 min RCP → se persistir chocável: 2º choque → 2 min RCP + Epinefrina (a cada 3-5 min) + considerar via aérea avançada e capnografia → se persistir chocável após novo choque: Amiodarona ou Lidocaína."
+    },
+    {
+      id: 19,
+      topic: "Ritmos de PCR e Algoritmos",
+      question: "Qual é a conduta medicamentosa inicial e o foco principal no atendimento de ritmos não chocáveis (Assistolia / AESP)?",
+      options: {
+        A: "Aplicar choque de 200 J, administrar Amiodarona 300 mg e aguardar retorno do ritmo.",
+        B: "Administrar Epinefrina o mais rápido possível (imediatamente), realizar 2 min de RCP e investigar/tratar ativamente as causas reversíveis (Hs e Ts).",
+        C: "Administrar Atropina 1 mg imediatamente e instalar marcapasso transcutâneo de rotina.",
+        D: "Aguardar 2 ciclos de RCP antes de administrar qualquer vasopressor."
+      },
+      answer: "B",
+      explanation: "Nos ritmos não chocáveis (Assistolia/AESP), deve-se administrar Epinefrina imediatamente (o mais rápido possível), realizar 2 min de RCP, repeti-la a cada 3-5 min e focar ativamente na investigação e tratamento das causas reversíveis (Hs e Ts)."
+    },
+    {
+      id: 20,
+      topic: "Ritmos de PCR e Algoritmos",
+      question: "Quanto às especificações de carga elétrica para desfibrilação na PCR, assinale a alternativa correta:",
+      options: {
+        A: "Bifásico: carga fixa de 360 J; Monofásico: carga inicial de 120 J.",
+        B: "Bifásico: recomendação do fabricante (dose inicial de 120 a 200 J; se desconhecida, usar carga máxima disponível); Monofásico: carga única de 360 J.",
+        C: "Bifásico: 50 a 100 J sincronizado; Monofásico: 200 J não sincronizado.",
+        D: "Bifásico: sempre iniciar com 100 J e reduzir nos choques seguintes; Monofásico: 300 J."
+      },
+      answer: "B",
+      explanation: "No desfibrilador bifásico usa-se a recomendação do fabricante (inicial de 120 a 200 J, ou carga máxima se desconhecida; doses subsequentes equivalentes ou superiores). No monofásico usa-se carga única de 360 J."
+    },
+    {
+      id: 21,
+      topic: "Ritmos de PCR e Algoritmos",
+      question: "Qual característica eletrocardiográfica diferencia fundamentalmente a Fibrilação Ventricular (FV) da Taquicardia Ventricular sem Pulso (TVSP) monomórfica?",
+      options: {
+        A: "Na FV há ondas P visíveis antes de cada complexo; na TVSP não há ondas P.",
+        B: "Na FV o ritmo é totalmente desorganizado, sem ondas P, sem QRS identificável e sem linha de base isoelétrica; na TVSP o ritmo é regular com QRS largos (> 120 ms) e FC geralmente de 120-250 bpm.",
+        C: "Na FV existe débito cardíaco residual; na TVSP há linha reta isoelétrica.",
+        D: "A FV apresenta QRS estreito (< 120 ms) irregular; a TVSP apresenta QRS estreito regular."
+      },
+      answer: "B",
+      explanation: "A FV caracteriza-se por ritmo totalmente desorganizado, ausência de ondas P, de QRS identificável e de linha de base isoelétrica. Já a TVSP monomórfica apresenta ritmo regular, complexos QRS largos (> 120 ms) e FC geralmente entre 120 e 250 bpm, sem pulso palpável."
+    },
+    {
+      id: 22,
+      topic: "Ritmos de PCR e Algoritmos",
+      question: "Como se define eletrocardiograficamente e hemodinamicamente a Atividade Elétrica Sem Pulso (AESP)?",
+      options: {
+        A: "Linha praticamente reta no monitor sem qualquer atividade elétrica ventricular.",
+        B: "Existência de atividade elétrica organizada no monitor, porém sem contração mecânica cardíaca suficiente para gerar pulso palpável ou débito cardíaco efetivo.",
+        C: "Atividade elétrica caótica com ondas de amplitude variável e pulso filiforme.",
+        D: "Bradicardia sinusal com pressão arterial sistólica de 85 mmHg e pulso radial fraco."
+      },
+      answer: "B",
+      explanation: "Na AESP existe atividade elétrica organizada no monitor, mas o coração não gera contração mecânica suficiente para produzir pulso palpável ou débito cardíaco efetivo."
+    },
+    {
+      id: 23,
+      topic: "Farmacologia e Acessos na PCR",
+      question: "Qual é a posologia e a técnica correta de administração da Epinefrina (Adrenalina) na PCR em adultos?",
+      options: {
+        A: "0,5 mg IV a cada 2 minutos, diluída em 100 mL de SG 5% em infusão lenta.",
+        B: "1 mg IV/IO (1:10.000) em bólus rápido a cada 3 a 5 minutos, seguida de flush de 20 mL de SF e elevação do membro por 10 a 20 segundos.",
+        C: "3 mg IV em dose única, sem necessidade de flush se o acesso for antecubital.",
+        D: "1 mg IM ou subcutâneo a cada 3 minutos até o retorno da circulação espontânea."
+      },
+      answer: "B",
+      explanation: "A Epinefrina é administrada na dose de 1 mg IV/IO (1:10.000) em bólus rápido a cada 3 a 5 minutos, seguida de flush de 20 mL de SF e elevação do membro por 10 a 20 segundos (melhora o RCE e a taxa de internação)."
+    },
+    {
+      id: 24,
+      topic: "Farmacologia e Acessos na PCR",
+      question: "Em relação ao uso da Amiodarona e da Lidocaína na PCR por ritmos chocáveis refratários, assinale a alternativa correta:",
+      options: {
+        A: "Amiodarona: 1ª dose de 150 mg após o 1º choque e 2ª dose de 300 mg após o 2º choque.",
+        B: "Amiodarona: 1ª dose de 300 mg IV/IO em bólus (após 3º choque) e 2ª dose de 150 mg IV/IO (após 5º choque); Lidocaína (alternativa): 1ª dose 1 a 1,5 mg/kg e 2ª dose 0,5 a 0,75 mg/kg (máx. 3 mg/kg).",
+        C: "Amiodarona: 300 mg/h em bomba contínua; Lidocaína: 3 mg/kg em bólus inicial.",
+        D: "Amiodarona é indicada apenas na Assistolia; Lidocaína é primeira escolha na AESP."
+      },
+      answer: "B",
+      explanation: "A Amiodarona é usada em ritmos chocáveis refratários após o 3º choque (1ª dose: 300 mg IV/IO + 20 mL SG 5%; 2ª dose após 5º choque: 150 mg IV/IO). A Lidocaína é alternativa na dose de 1 a 1,5 mg/kg (1ª dose) e 0,5 a 0,75 mg/kg (2ª dose), máximo de 3 mg/kg."
+    },
+    {
+      id: 25,
+      topic: "Farmacologia e Acessos na PCR",
+      question: "Quando o Sulfato de Magnésio está indicado na PCR e qual sua posologia recomendada?",
+      options: {
+        A: "Na fibrilação atrial de alta resposta; 5 g IV em 30 minutos.",
+        B: "Na Torsades de Pointes e na hipomagnesemia grave; 1 a 2 g IV/IO diluído em 10 mL de SF em infusão rápida.",
+        C: "Em toda assistolia refratária; 4 g IV em bólus a cada 5 minutos.",
+        D: "Na hipercalemia grave; 1 g IM antes do gluconato de cálcio."
+      },
+      answer: "B",
+      explanation: "O Sulfato de Magnésio é indicado na Torsades de Pointes e na hipomagnesemia grave, na dose de 1 a 2 g IV/IO diluído em 10 mL de SF em infusão rápida."
+    },
+    {
+      id: 26,
+      topic: "Farmacologia e Acessos na PCR",
+      question: "Sobre a ordem de escolha dos acessos vasculares na PCR e os riscos do acesso venoso central, assinale a afirmação verdadeira:",
+      options: {
+        A: "O acesso venoso central é a 1ª escolha por entregar a droga mais rápido ao coração sem riscos.",
+        B: "1ª escolha é o acesso venoso periférico (leva 1-2 min para atingir circulação central); 2ª escolha é o acesso intraósseo (preferível à via endotraqueal). O acesso central deve ser evitado se atrasar a RCP por exigir interrupção das compressões e ter risco de lacerações vasculares, hemorragias e hematomas.",
+        C: "A via endotraqueal é superior à via intraóssea para administração de epinefrina e amiodarona.",
+        D: "No acesso intraósseo não podem ser infundidas todas as drogas endovenosas."
+      },
+      answer: "B",
+      explanation: "A 1ª escolha é o acesso venoso periférico e a 2ª é o acesso intraósseo (todas as drogas EV podem ser feitas por IO, preferível à via endotraqueal). O acesso central exige interrupção das compressões e apresenta riscos graves como lacerações vasculares, hemorragias e hematomas."
+    },
+    {
+      id: 27,
+      topic: "Vias Aéreas e Ventilação",
+      question: "Qual a diferença técnica e a indicação entre as manobras básicas de abertura de via aérea Chin Lift e Jaw Thrust?",
+      options: {
+        A: "Chin Lift é usada quando há suspeita de trauma cervical; Jaw Thrust é usada quando não há trauma.",
+        B: "Chin Lift (inclinação da cabeça e elevação do queixo) é usada quando NÃO há suspeita de lesão cervical; Jaw Thrust (tração anterior da mandíbula) é usada quando HÁ suspeita de lesão cervical, mantendo a coluna estável.",
+        C: "Ambas exigem hiperextensão cervical máxima para alinhar os eixos oral e faríngeo.",
+        D: "Jaw Thrust é contraindicada em pacientes inconscientes por causar obstrução pela língua."
+      },
+      answer: "B",
+      explanation: "A manobra Chin Lift (inclinação da cabeça e elevação do queixo) abre as vias aéreas quando não há suspeita de lesão cervical. A manobra Jaw Thrust (projeção/tração anterior da mandíbula) é indicada na suspeita de lesão cervical para manter a coluna estável."
+    },
+    {
+      id: 28,
+      topic: "Vias Aéreas e Ventilação",
+      question: "Quais são os pré-requisitos clínicos obrigatórios para a inserção da Cânula Orofaríngea (Guedel) e qual é a numeração padrão para um adulto de porte médio?",
+      options: {
+        A: "Paciente consciente ou sonolento com reflexo de tosse preservado; tamanho 1.",
+        B: "Paciente inconsciente, sem reflexo de vômito e sem reflexo de tosse; tamanho 3 (Adulto).",
+        C: "Qualquer paciente dispneico com SatO2 < 90%; tamanho 00.",
+        D: "Paciente inconsciente com reflexo de vômito ativo; tamanho 6."
+      },
+      answer: "B",
+      explanation: "A cânula orofaríngea só deve ser usada em pacientes inconscientes, sem reflexo de vômito e sem reflexo de tosse. A escala de tamanhos é: 00 (Neonatal), 0 (Bebês), 1 (Crianças), 2 (Adulto Pequeno), 3 (Adulto), 4 (Adulto Grande), 5 (Adulto XL), 6 (Adulto XXL)."
+    },
+    {
+      id: 29,
+      topic: "Vias Aéreas e Ventilação",
+      question: "Na anatomia do Tubo Endotraqueal (TOT), qual é a função específica do 'Olho de Murphy' e do 'Balão de controle'?",
+      options: {
+        A: "Olho de Murphy: indica profundidade em cm; Balão de controle: impede refluxo gástrico na traqueia.",
+        B: "Olho de Murphy: porta de saída lateral caso a ponta do tubo fique obstruída; Balão de controle: fornece sensação tátil da pressão do cuff.",
+        C: "Olho de Murphy: marca a altura das cordas vocais; Balão de controle: permite visualização no raio-X de tórax.",
+        D: "Olho de Murphy: conecta o tubo ao AMBU; Balão de controle: facilita a passagem pelas cordas vocais."
+      },
+      answer: "B",
+      explanation: "No tubo endotraqueal, o Olho de Murphy funciona como porta de saída alternativa caso a ponta distal fique obstruída, e o balão de controle permite avaliar pela sensação tátil a pressão interna do cuff."
+    },
+    {
+      id: 30,
+      topic: "Vias Aéreas e Ventilação",
+      question: "Como deve ser realizada a ventilação na PCR em adultos: (1) sem via aérea avançada, (2) com via aérea avançada e (3) em paciente que já estava em Ventilação Mecânica?",
+      options: {
+        A: "(1) 15:2; (2) 1 ventilação a cada 3 segundos; (3) desconectar imediatamente do ventilador.",
+        B: "(1) Relação 30:2 com AMBU e O2 a 100%; (2) 1 ventilação a cada 6 segundos (10/min) com compressões contínuas; (3) não retirar do ventilador: ajustar PEEP = 0, VC = 8 mL/kg, FR = 10, Trigger OFF e I:E = 1:5.",
+        C: "(1) 30:2 com ar ambiente; (2) 20 ventilações/min; (3) PEEP = 10, VC = 6 mL/kg, FR = 20, Trigger ON.",
+        D: "(1) Compressões contínuas sem pausa; (2) 30:2; (3) PEEP = 5, VC = 10 mL/kg, FR = 12."
+      },
+      answer: "B",
+      explanation: "Sem via aérea avançada: 30:2 com O2 100%. Com via aérea avançada (TOT ou máscara laríngea): 1 ventilação a cada 6 segundos (10/min) com compressões contínuas. Se já estiver em VM (não retirar): PEEP = 0, VC = 8 mL/kg, FR = 10, Trigger OFF e I:E = 1:5."
+    },
+    {
+      id: 31,
+      topic: "Causas Reversíveis e Pediatria",
+      question: "Assinale a alternativa que associa corretamente uma causa reversível de PCR (5 Hs e 5 Ts) ao seu tratamento específico:",
+      options: {
+        A: "Tamponamento cardíaco → Trombólise sistêmica imediata.",
+        B: "Tensão no tórax (pneumotórax hipertensivo) → Descompressão imediata; Hipo/Hipercalemia → Gluconato de cálcio, insulina + glicose, diálise.",
+        C: "Trombose pulmonar → Pericardiocentese subxifoide.",
+        D: "Hipovolemia → Bicarbonato de sódio isolado e restrição hídrica."
+      },
+      answer: "B",
+      explanation: "Nos 5 Hs e 5 Ts: Tensão no tórax (pneumotórax hipertensivo) trata-se com descompressão imediata; Hipo/Hipercalemia com gluconato de cálcio, insulina + glicose, diálise; Tamponamento cardíaco com pericardiocentese; Trombose pulmonar com trombólise ou embolectomia."
+    },
+    {
+      id: 32,
+      topic: "Causas Reversíveis e Pediatria",
+      question: "Comparando o atendimento da PCR entre Adulto e Pediatria (com 2 socorristas), quais são os valores corretos para (1) relação compressão/ventilação sem via aérea avançada, (2) frequência ventilatória com via aérea avançada, (3) dose de Adrenalina e (4) dose de Amiodarona?",
+      options: {
+        A: "Adulto: 30:2, 1 vent/6s, 1 mg, 300 mg → 150 mg | Pediatria: 15:2, 1 vent/2-3s, 0,01 mg/kg, 5 mg/kg (até 3 doses).",
+        B: "Adulto: 15:2, 1 vent/2-3s, 0,01 mg/kg, 5 mg/kg | Pediatria: 30:2, 1 vent/6s, 1 mg, 300 mg.",
+        C: "Adulto: 30:2, 1 vent/5s, 1 mg, 150 mg | Pediatria: 30:2, 1 vent/4s, 0,1 mg/kg, 10 mg/kg.",
+        D: "Adulto: 15:2, 1 vent/6s, 1 mg, 300 mg | Pediatria: 15:2, 1 vent/6s, 0,05 mg/kg, 5 mg/kg."
+      },
+      answer: "A",
+      explanation: "As diferenças entre Adulto e Pediatria são: sem via aérea avançada (30:2 vs. 15:2); com via aérea avançada (1 vent a cada 6s vs. 1 vent a cada 2-3s); Adrenalina (1 mg vs. 0,01 mg/kg); Amiodarona (300 mg → 150 mg vs. 5 mg/kg até 3 doses)."
+    },
+    {
+      id: 33,
+      topic: "Cuidados Pós-PCR (RCE)",
+      question: "Quais critérios confirmam o Retorno da Circulação Espontânea (RCE) e quais são as metas terapêuticas imediatas pós-PCR?",
+      options: {
+        A: "Critérios: PETCO2 < 10 mmHg e pulso carotídeo ausente. Metas: SatO2 100%, PAM ≥ 50 mmHg, induzir hipertermia.",
+        B: "Critérios: retorno de pulso palpável e PA mensurável, elevação abrupta e sustentada da PETCO2 (tipicamente ≥ 40 mmHg) e ondas espontâneas de PA intra-arterial. Metas: SatO2 94-98%, PAM ≥ 65 mmHg, evitar hipertermia e evitar hipo/hiperglicemia importante.",
+        C: "Critérios: apenas retorno de movimentos respiratórios espontâneos. Metas: SatO2 > 88%, PAM ≥ 85 mmHg, manter glicemia > 250 mg/dL.",
+        D: "Critérios: ritmo sinusal no monitor mesmo sem pulso. Metas: SatO2 90-92%, PAM ≥ 60 mmHg."
+      },
+      answer: "B",
+      explanation: "O RCE é confirmado pelo retorno de pulso palpável e PA mensurável, elevação abrupta e sustentada da PETCO2 (tipicamente ≥ 40 mmHg) e ondas espontâneas de PA intra-arterial. As metas pós-RCE são: SatO2 94-98%, PAM ≥ 65 mmHg, evitar hipertermia e evitar hipoglicemia/hiperglicemia importante."
+    },
+    {
+      id: 34,
+      topic: "Choque e Drogas Vasoativas",
+      question: "Qual é a conduta escalonada correta no manejo hemodinâmico do Choque Séptico e do Choque Cardiogênico?",
+      options: {
+        A: "Séptico: Dobutamina inicial → se PAM < 65 mmHg, Noradrenalina. Cardiogênico: Reposição volêmica vigorosa → Vasopressina.",
+        B: "Séptico: Reposição volêmica → se PAM < 65 mmHg, Noradrenalina → se noradrenalina alta, adicionar Vasopressina → se sinais de baixo débito, adicionar Dobutamina. Cardiogênico: baixo débito → Dobutamina → se hipotensão associada, associar Noradrenalina.",
+        C: "Séptico: Adrenalina isolada → Atropina. Cardiogênico: Dopamina isolada em dose baixa.",
+        D: "Séptico: Vasopressina de 1ª linha → Noradrenalina. Cardiogênico: apenas nitroglicerina."
+      },
+      answer: "B",
+      explanation: "No Choque Séptico: reposição volêmica → Noradrenalina (se PAM < 65 mmHg) → Vasopressina (se nora alta) → Dobutamina (se baixo débito). No Choque Cardiogênico: Dobutamina (baixo débito) → associar Noradrenalina (se hipotensão associada). No Choque Misto: Noradrenalina + Dobutamina."
+    },
+    {
+      id: 35,
+      topic: "Choque e Drogas Vasoativas",
+      question: "De acordo com a 'Regra de Ouro da UTI' para escolha de drogas vasoativas, como diferenciar a indicação entre Noradrenalina e Dobutamina?",
+      options: {
+        A: "Extremidade fria + PAM baixa = falta pressão → Dobutamina; Extremidade quente + lactato alto = falta débito → Noradrenalina.",
+        B: "Extremidade quente + PAM baixa = falta pressão → Noradrenalina; Extremidade fria + PAM normal/baixa + lactato aumentado = falta débito → Dobutamina.",
+        C: "Extremidade quente + PAM alta = falta débito → Noradrenalina; Extremidade fria + lactato normal = falta pressão → Dobutamina.",
+        D: "Ambas são escolhidas exclusivamente pelo valor da frequência cardíaca, independentemente da perfusão periférica."
+      },
+      answer: "B",
+      explanation: "Pela Regra de Ouro da UTI: Extremidade quente + PAM baixa indica falta de pressão (vasodilatação) → Noradrenalina; Extremidade fria + PAM normal/baixa + lactato aumentado indica falta de débito → Dobutamina."
+    },
+    {
+      id: 36,
+      topic: "Bradicardias e Bloqueios AV",
+      question: "Quais são os três critérios obrigatórios que definem uma 'Bradicardia Sintomática'?",
+      options: {
+        A: "FC < 60 bpm, idade > 65 anos e histórico de hipertensão arterial.",
+        B: "FC lenta + paciente sintomático (tontura, pré-síncope, síncope, hipotensão) + sintomas decorrentes diretamente da FC baixa.",
+        C: "FC < 50 bpm, presença de onda P invertida e intervalo PR > 200 ms.",
+        D: "FC < 40 bpm durante o sono, mesmo sem sintomas ou alteração pressórica."
+      },
+      answer: "B",
+      explanation: "A bradicardia sintomática exige os 3 critérios simultâneos: (1) FC lenta, (2) paciente sintomático (tontura, pré-síncope, síncope, hipotensão) e (3) os sintomas serem decorrentes da FC baixa."
+    },
+    {
+      id: 37,
+      topic: "Bradicardias e Bloqueios AV",
+      question: "Na avaliação inicial (ABCDE) de um paciente com bradicardia, quais achados caracterizam instabilidade hemodinâmica / má perfusão, indicando tratamento imediato?",
+      options: {
+        A: "Apenas FC < 55 bpm e ansiedade leve.",
+        B: "Hipotensão (PAS < 90 mmHg), alteração do nível de consciência, dor torácica isquêmica, sinais de insuficiência cardíaca aguda e choque.",
+        C: "SatO2 de 96% em ar ambiente e pressão arterial de 110x70 mmHg.",
+        D: "Sudorese fria isolada após exercício físico sem alteração mental ou pressórica."
+      },
+      answer: "B",
+      explanation: "Os sinais de instabilidade nas bradicardias são: hipotensão (PAS < 90 mmHg), alteração do nível de consciência, dor torácica isquêmica, sinais de insuficiência cardíaca aguda e choque. Se presentes, tratar imediatamente; caso contrário, observar e monitorizar."
+    },
+    {
+      id: 38,
+      topic: "Bradicardias e Bloqueios AV",
+      question: "Sobre o uso da Atropina como 1ª escolha na Bradicardia Instável, assinale a alternativa correta:",
+      options: {
+        A: "Dose de 0,25 mg EV a cada 10 minutos até máximo de 1 mg; é o tratamento definitivo para BAVT com QRS largo.",
+        B: "Dose de 1 mg EV em bolo, repetir a cada 3-5 min até máximo de 3 mg; não usar < 0,5 mg pelo risco de bradicardia paradoxal; evitar em transplantados cardíacos; pode falhar no BAV 2º grau Mobitz II e BAVT com QRS largo.",
+        C: "Dose de 3 mg EV em bolo único; primeira escolha em pacientes transplantados cardíacos.",
+        D: "Dose de 1 mg IM a cada 5 min; deve ser usada com cautela apenas em pacientes jovens."
+      },
+      answer: "B",
+      explanation: "A Atropina é administrada na dose de 1 mg EV em bolo a cada 3-5 min (máximo de 3 mg). Não se deve usar doses < 0,5 mg (risco de bradicardia paradoxal), deve ser evitada em transplantados cardíacos, usada com cautela na SCA e pode falhar no BAV 2º grau Mobitz II e BAVT com QRS largo."
+    },
+    {
+      id: 39,
+      topic: "Bradicardias e Bloqueios AV",
+      question: "Quando a Bradicardia Instável não responde à Atropina, quais opções farmacológicas (e suas respectivas doses) podem ser utilizadas como medida temporizadora antes ou junto do marcapasso?",
+      options: {
+        A: "Dopamina (5-20 mcg/kg/min), Noradrenalina (0,02-1 mcg/kg/min), Adrenalina (2-10 mcg/min) ou Dobutamina (2-20 mcg/kg/min).",
+        B: "Amiodarona (150 mg em 10 min), Adenosina (6 mg em bólus) ou Metoprolol (5 mg EV).",
+        C: "Dopamina (1-2 mcg/kg/min) ou Sulfato de Magnésio (2 g EV).",
+        D: "Adenosina (12 mg EV) ou Nitroprussiato de sódio (0,5 mcg/kg/min)."
+      },
+      answer: "A",
+      explanation: "Sem resposta à atropina na bradicardia instável, utilizam-se: Dopamina (5-20 mcg/kg/min; diluir 200 mg em 250 mL SF 0,9%), Noradrenalina (0,02-1 mcg/kg/min; diluir 4 mg em 250 mL SG 5%), Adrenalina (2-10 mcg/min), Dobutamina (2-20 mcg/kg/min) ou Marcapasso Transcutâneo."
+    },
+    {
+      id: 40,
+      topic: "Bradicardias e Bloqueios AV",
+      question: "Como diferenciar no ECG o Bloqueio Atrioventricular (BAV) de 2º grau Mobitz I (Wenckebach) do BAV de 2º grau Mobitz II?",
+      options: {
+        A: "No Mobitz I o PR é constante com perda súbita de QRS; no Mobitz II o PR alarga progressivamente.",
+        B: "No Mobitz I o intervalo PR aumenta progressivamente até ocorrer uma onda P bloqueada (sem QRS); no Mobitz II o intervalo PR é constante com perda súbita de um QRS (mais grave, maior risco de evoluir para BAVT e menor resposta à atropina).",
+        C: "No Mobitz I há dissociação AV completa; no Mobitz II toda onda P conduz com PR > 200 ms.",
+        D: "Ambos apresentam ausência total de ondas P e ritmo de escape ventricular."
+      },
+      answer: "B",
+      explanation: "No BAV 2º grau Mobitz I (Wenckebach), o PR alarga progressivamente até uma onda P falhar em conduzir. No Mobitz II, o PR é fixo/constante e ocorre perda súbita de um QRS, sendo mais grave, com maior risco de evoluir para BAVT e menor resposta à atropina."
+    },
+    {
+      id: 41,
+      topic: "Bradicardias e Bloqueios AV",
+      question: "No BAV de 3º grau (BAV Total), qual é a característica eletrocardiográfica principal e o significado prognóstico do complexo QRS de escape?",
+      options: {
+        A: "PR > 200 ms sem bloqueio de P; QRS estreito indica infarto extenso.",
+        B: "Dissociação AV completa (átrios e ventrículos independentes); escape juncional (QRS estreito) tem melhor prognóstico, enquanto escape ventricular (QRS largo) é mais grave e requer marcapasso urgente.",
+        C: "Dissociação AV parcial; escape ventricular (QRS largo) responde prontamente à atropina.",
+        D: "Ondas P ausentes; escape juncional exige desfibrilação imediata."
+      },
+      answer: "B",
+      explanation: "No BAV Total há dissociação AV completa. O ritmo de escape pode ser juncional (QRS estreito, melhor prognóstico) ou ventricular (QRS largo, mais grave, que requer marcapasso urgente)."
+    },
+    {
+      id: 42,
+      topic: "Taquiarritmias",
+      question: "Quais são as 6 perguntas fundamentais na abordagem das Taquiarritmias (FC > 100 bpm) e qual é a 'Regra de Ouro' diante de instabilidade?",
+      options: {
+        A: "Perguntas: Idade, peso, alergias, medicamentos, ECG prévio, troponina. Regra de ouro: Amiodarona para todos.",
+        B: "Perguntas: 1. Tem pulso? 2. Sintomática ou assintomática? 3. Estável ou instável? 4. QRS estreito (< 120 ms) ou largo (≥ 120 ms)? 5. Ritmo regular ou irregular? 6. QRS monomórfico ou polimórfico? Regra de ouro: Taquiarritmia instável = CHOQUE.",
+        C: "Perguntas: 1. Tem febre? 2. Tem dor? 3. SatO2? 4. PA? 5. Glicemia? 6. Diurese? Regra de ouro: Betabloqueador venoso.",
+        D: "Perguntas: 1. QRS > 200 ms? 2. Onda P presente? 3. Eixo elétrico? 4. QT longo? 5. Supra de ST? 6. Inversão de T? Regra de ouro: Adenosina 12 mg."
+      },
+      answer: "B",
+      explanation: "As 6 perguntas fundamentais das taquiarritmias avaliam pulso, sintomas, estabilidade, largura do QRS (< 120 ms vs. ≥ 120 ms), regularidade e morfologia (monomórfico vs. polimórfico). A Regra de Ouro é: Taquiarritmia instável (PAS < 90 mmHg, alteração de consciência, choque, dor torácica, EAP) = CHOQUE."
+    },
+    {
+      id: 43,
+      topic: "Taquiarritmias",
+      question: "Como deve ser executada corretamente a Manobra de Valsalva Modificada para reversão de taquicardia supraventricular estável?",
+      options: {
+        A: "Massagear o seio carotídeo bilateralmente por 30 segundos com o paciente em pé.",
+        B: "O paciente sopra uma seringa por 10-15 segundos, depois deita rapidamente e eleva as pernas a 30-45° por 15 segundos, retornando em seguida à posição sentada.",
+        C: "Aplicar compressa gelada na face por 1 minuto com o paciente em decúbito ventral.",
+        D: "O paciente prende a respiração por 45 segundos sentado e depois caminha rapidamente."
+      },
+      answer: "B",
+      explanation: "Na Manobra de Valsalva Modificada, o paciente sopra uma seringa por 10-15 segundos, deita-se rapidamente elevando as pernas a 30-45° por 15 segundos e depois retorna à posição sentada."
+    },
+    {
+      id: 44,
+      topic: "Taquiarritmias",
+      question: "Qual é a técnica correta de administração e as doses da Adenosina nas taquiarritmias?",
+      options: {
+        A: "Acesso venoso distal no pé; infusão lenta em 5 minutos; 1ª dose 3 mg, 2ª dose 6 mg.",
+        B: "Acesso venoso proximal; bolus rápido (1ª dose 6 mg EV; se não reverter, 12 mg EV, podendo repetir 12 mg) seguido de flush imediato com SF e monitorização cardíaca (causa pausa cardíaca transitória esperada).",
+        C: "Acesso venoso central; bolus de 150 mg em 10 minutos; não necessita flush.",
+        D: "Via intramuscular; dose única de 12 mg sem necessidade de monitorização eletrocardiográfica."
+      },
+      answer: "B",
+      explanation: "A Adenosina deve ser feita em acesso venoso proximal em bolus rápido (1ª dose 6 mg EV; se não reverter, 12 mg EV, podendo repetir 12 mg), seguida de flush imediato com SF sob monitor cardíaco, pois provoca pausa cardíaca transitória esperada."
+    },
+    {
+      id: 45,
+      topic: "Taquiarritmias",
+      question: "Qual é a conduta recomendada na Taquicardia de QRS Estreito e Regular (< 120 ms, ex.: TSV) no paciente estável versus no paciente instável?",
+      options: {
+        A: "Estável: Cardioversão 200 J; Instável: Metoprolol EV.",
+        B: "Estável: manobra vagal (Valsalva modificada) → Adenosina (6 mg → 12 mg) → Betabloqueador ou Bloqueador de Canal de Cálcio (metoprolol, diltiazem). Instável: pode tentar Adenosina enquanto prepara choque; sem resposta → Cardioversão elétrica sincronizada com 50-100 J.",
+        C: "Estável: Amiodarona 300 mg em bólus; Instável: Desfibrilação não sincronizada com 360 J.",
+        D: "Estável: Atropina 1 mg; Instável: Cardioversão sincronizada com 200 J."
+      },
+      answer: "B",
+      explanation: "Na taquicardia de QRS estreito e regular: se estável, segue-se manobra vagal → Adenosina (6 mg → 12 mg) → Betabloqueador ou BCC (metoprolol, diltiazem). Se instável, pode-se tentar Adenosina enquanto prepara o choque; sem resposta, realiza-se cardioversão elétrica sincronizada com 50-100 J."
+    },
+    {
+      id: 46,
+      topic: "Taquiarritmias",
+      question: "Qual é a conduta correta na Taquicardia de QRS Estreito e Irregular (< 120 ms, ex.: Fibrilação Atrial / Flutter) em pacientes estáveis e instáveis?",
+      options: {
+        A: "Estável: Adenosina 6 mg seguido de 12 mg para cardioversão química imediata; Instável: Cardioversão sincronizada com 50 J.",
+        B: "Estável: controle de frequência com Metoprolol (2,5-5 mg EV a cada 5 min, máx. 15 mg), Diltiazem (0,25 mg/kg EV em 2 min; manutenção 5-15 mg/h) ou Amiodarona, e considerar anticoagulação (CHA2DS2-VASc e tempo de início). Instável: Cardioversão elétrica sincronizada com 120-200 J.",
+        C: "Estável: Sulfato de Magnésio 2 g EV; Instável: Desfibrilação não sincronizada com 100 J.",
+        D: "Estável: Manobra de Valsalva modificada; Instável: Marcapasso transcutâneo."
+      },
+      answer: "B",
+      explanation: "Na taquicardia de QRS estreito e irregular (ex.: FA/Flutter): se estável, faz-se controle de frequência com Metoprolol (2,5-5 mg EV a cada 5 min, máx. 15 mg), Diltiazem (0,25 mg/kg EV em 2 min; manutenção 5-15 mg/h) ou Amiodarona, avaliando anticoagulação. Se instável, cardioversão elétrica sincronizada com 120-200 J."
+    },
+    {
+      id: 47,
+      topic: "Taquiarritmias",
+      question: "Sobre a Taquicardia de QRS Largo e Regular (≥ 120 ms, ex.: TV monomórfica com pulso), qual é a conduta no paciente estável e qual é a carga de choque no paciente instável?",
+      options: {
+        A: "Estável: apenas observação clínica; Instável: Desfibrilação não sincronizada com 360 J.",
+        B: "Estável: Adenosina (se regular e monomórfica) e antiarrítmico — Amiodarona 150 mg EV em 10 min (pode repetir), manutenção 1 mg/min por 6 h e depois 0,5 mg/min por 18 h. Instável: Cardioversão elétrica sincronizada com 100 J.",
+        C: "Estável: Diltiazem 0,25 mg/kg EV; Instável: Cardioversão sincronizada com 50 J.",
+        D: "Estável: Lidocaína 3 mg/kg em bólus; Instável: Cardioversão sincronizada com 200 J."
+      },
+      answer: "B",
+      explanation: "Na taquicardia de QRS largo e regular (TV monomórfica com pulso): se estável, pode-se considerar Adenosina (se regular e monomórfica) e Amiodarona 150 mg EV em 10 min (podendo repetir), seguida de manutenção (1 mg/min por 6 h e 0,5 mg/min por 18 h). Se instável, cardioversão elétrica sincronizada com 100 J."
+    },
+    {
+      id: 48,
+      topic: "Taquiarritmias",
+      question: "Em relação à Taquicardia de QRS Largo e Irregular / Polimórfica (ex.: Torsades de Pointes) e ao Ritmo Anárquico, assinale a alternativa correta:",
+      options: {
+        A: "Na Torsades de Pointes instável deve-se sempre ativar o modo sincronizado com 50 J.",
+        B: "O diagnóstico de Torsades de Pointes exige intervalo QT/QTc prolongado no ECG de base; o tratamento de 1ª linha é Sulfato de Magnésio 1-2 g EV em 10-20 min e correção de causas que prolongam o QT. Se instável ou dúvida diagnóstica (QRS largo irregular ou ritmo anárquico): Desfibrilação (choque NÃO sincronizado de 120-200 J; nunca sincronizar).",
+        C: "Na TV polimórfica com QT normal, a 1ª linha é Adenosina 12 mg EV.",
+        D: "O Sulfato de Magnésio é contraindicado se houver hipocalemia associada."
+      },
+      answer: "B",
+      explanation: "A Torsades de Pointes exige QT/QTc prolongado no ECG de base, sendo tratada em 1ª linha com Sulfato de Magnésio 1-2 g EV em 10-20 min e correção de causas de QT longo (se QT normal, tratar isquemia ou usar amiodarona). Se instável ou dúvida diagnóstica em QRS largo irregular/ritmo anárquico, realiza-se desfibrilação (choque NÃO sincronizado de 120-200 J; nunca sincronizar)."
+    },
+    {
+      id: 49,
+      topic: "Taquiarritmias",
+      question: "Quais são os fármacos, suas doses e as particularidades hemodinâmicas para sedação antes da cardioversão elétrica?",
+      options: {
+        A: "Midazolam (0,05-0,1 mg/kg EV); Etomidato (0,1-0,2 mg/kg EV — boa opção hemodinamicamente); Propofol (0,5-1 mg/kg EV — evitar em instabilidade).",
+        B: "Midazolam (0,5-1 mg/kg EV); Etomidato (1-2 mg/kg EV); Propofol (0,05 mg/kg EV — escolha ideal na hipotensão).",
+        C: "Fentanil (5 mcg/kg EV); Morfina (10 mg EV); Diazepam (20 mg IM).",
+        D: "Propofol (2-3 mg/kg EV) como primeira escolha em pacientes chocados; Etomidato é contraindicado."
+      },
+      answer: "A",
+      explanation: "Para sedação na cardioversão elétrica utilizam-se: Midazolam (0,05-0,1 mg/kg EV), Etomidato (0,1-0,2 mg/kg EV, boa opção hemodinamicamente) e Propofol (0,5-1 mg/kg EV, que deve ser evitado em pacientes instáveis)."
+    },
+    {
+      id: 50,
+      topic: "Choque e Drogas Vasoativas",
+      question: "Antes de iniciar uma droga vasoativa na UTI ou sala de emergência, o checklist pré-infusão inclui diversas verificações essenciais. Qual item NÃO faz parte desse checklist ou contraria as boas práticas descritas no protocolo?",
+      options: {
+        A: "Verificar se a hipovolemia foi corrigida, checar PAM atual e se o lactato foi colhido.",
+        B: "Avaliar se as extremidades estão quentes ou frias, se há sinais de congestão e se o problema é pressão ou débito.",
+        C: "Checar necessidade de acesso central, disponibilidade de bomba de infusão e monitorização contínua.",
+        D: "Iniciar infusão contínua de noradrenalina em equipo gravitacional comum sem bomba de infusão enquanto aguarda correção de hipovolemia grave."
+      },
+      answer: "D",
+      explanation: "O checklist antes de iniciar droga vasoativa exige verificar: hipovolemia corrigida, PAM atual, lactato colhido, extremidades quentes ou frias, sinais de congestão, se o problema é pressão ou débito, necessidade de acesso central, disponibilidade de bomba de infusão e monitorização contínua."
+    }
+  ];
+
+  // Estado do aplicativo
+  let userAnswers = {}; // { questionId: 'A' | 'B' | 'C' | 'D' }
+
+  const quizContainer = document.getElementById('quiz-container');
+  const topicFilter = document.getElementById('topic-filter');
+  const statusFilter = document.getElementById('status-filter');
+  const searchInput = document.getElementById('search-input');
+  const resetBtn = document.getElementById('reset-btn');
+  const emptyState = document.getElementById('empty-state');
+  const visibleCountEl = document.getElementById('visible-count');
+
+  const statAnsweredEl = document.getElementById('stat-answered');
+  const statCorrectEl = document.getElementById('stat-correct');
+  const statWrongEl = document.getElementById('stat-wrong');
+  const statPercentEl = document.getElementById('stat-percent');
+
+  // Popular filtro de temas dinamicamente
+  function populateTopics() {
+    const topics = [...new Set(questionsData.map(q => q.topic))];
+    topics.forEach(topic => {
+      const option = document.createElement('option');
+      option.value = topic;
+      option.textContent = topic;
+      topicFilter.appendChild(option);
+    });
+  }
+
+  // Atualizar placar em tempo real
+  function updateScoreboard() {
+    const answeredIds = Object.keys(userAnswers);
+    const totalAnswered = answeredIds.length;
+    let correctCount = 0;
+
+    answeredIds.forEach(id => {
+      const q = questionsData.find(item => item.id === Number(id));
+      if (q && userAnswers[id] === q.answer) {
+        correctCount++;
+      }
+    });
+
+    const wrongCount = totalAnswered - correctCount;
+    const percent = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+
+    statAnsweredEl.textContent = totalAnswered;
+    statCorrectEl.textContent = correctCount;
+    statWrongEl.textContent = wrongCount;
+    statPercentEl.textContent = `${percent}%`;
+  }
+
+  // Renderizar questões filtradas
+  function renderQuestions() {
+    const selectedTopic = topicFilter.value;
+    const selectedStatus = statusFilter.value;
+    const searchTerm = searchInput.value.trim().toLowerCase();
+
+    quizContainer.innerHTML = '';
+    let shownCount = 0;
+
+    questionsData.forEach(q => {
+      const userChoice = userAnswers[q.id];
+      const isAnswered = Boolean(userChoice);
+      const isCorrect = isAnswered && userChoice === q.answer;
+
+      // Filtro por tema
+      if (selectedTopic !== 'all' && q.topic !== selectedTopic) return;
+
+      // Filtro por status
+      if (selectedStatus === 'unanswered' && isAnswered) return;
+      if (selectedStatus === 'correct' && !isCorrect) return;
+      if (selectedStatus === 'wrong' && (!isAnswered || isCorrect)) return;
+
+      // Filtro por busca textual
+      if (searchTerm) {
+        const haystack = `${q.question} ${q.topic} ${Object.values(q.options).join(' ')} ${q.explanation}`.toLowerCase();
+        if (!haystack.includes(searchTerm)) return;
+      }
+
+      shownCount++;
+
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `question-${q.id}`;
+
+      const meta = document.createElement('div');
+      meta.className = 'question-meta';
+      meta.innerHTML = `
+        <span class="q-number">Questão ${String(q.id).padStart(2, '0')} de 50</span>
+        <span class="q-topic">${q.topic}</span>
+      `;
+
+      const text = document.createElement('div');
+      text.className = 'q-text';
+      text.textContent = q.question;
+
+      const optionsList = document.createElement('div');
+      optionsList.className = 'options-list';
+
+      ['A', 'B', 'C', 'D'].forEach(letter => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+
+        if (isAnswered) {
+          btn.disabled = true;
+          if (letter === q.answer) {
+            btn.classList.add('correct');
+          } else if (letter === userChoice) {
+            btn.classList.add('wrong');
+          }
+        }
+
+        btn.innerHTML = `
+          <span class="opt-letter">${letter}</span>
+          <span>${q.options[letter]}</span>
+        `;
+
+        btn.addEventListener('click', () => handleAnswer(q.id, letter));
+        optionsList.appendChild(btn);
+      });
+
+      const feedback = document.createElement('div');
+      feedback.className = 'feedback-box';
+      if (isAnswered) {
+        feedback.classList.add('show', isCorrect ? 'is-correct' : 'is-wrong');
+        feedback.innerHTML = `
+          <div class="feedback-title">
+            ${isCorrect ? '✔ Resposta Correta!' : `✖ Resposta Incorreta! Você marcou (${userChoice}) — Gabarito: (${q.answer})`}
+          </div>
+          <div class="feedback-explanation"><strong>Comentário:</strong> ${q.explanation}</div>
+        `;
+      }
+
+      card.appendChild(meta);
+      card.appendChild(text);
+      card.appendChild(optionsList);
+      card.appendChild(feedback);
+      quizContainer.appendChild(card);
+    });
+
+    visibleCountEl.textContent = `Exibindo ${shownCount} de ${questionsData.length} questões`;
+    emptyState.style.display = shownCount === 0 ? 'block' : 'none';
+  }
+
+  // Registrar resposta e atualizar interface
+  function handleAnswer(questionId, chosenLetter) {
+    if (userAnswers[questionId]) return;
+    userAnswers[questionId] = chosenLetter;
+    updateScoreboard();
+    renderQuestions();
+  }
+
+  // Reiniciar quiz
+  resetBtn.addEventListener('click', () => {
+    if (Object.keys(userAnswers).length === 0) return;
+    if (confirm('Deseja zerar todas as suas respostas e reiniciar o placar?')) {
+      userAnswers = {};
+      updateScoreboard();
+      renderQuestions();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  // Eventos de filtro
+  topicFilter.addEventListener('change', renderQuestions);
+  statusFilter.addEventListener('change', renderQuestions);
+  searchInput.addEventListener('input', renderQuestions);
+
+  // Inicialização
+  populateTopics();
+  updateScoreboard();
+  renderQuestions();
+</script>
+</body>
+</html>
